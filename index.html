@@ -1232,12 +1232,15 @@
         XLSX.writeFile(wb, `ارشيف_وتقارير_إيطاليانو_${nowStr}.xlsx`);
     }
 
-    window.addEventListener('DOMContentLoaded', function() {
-        applyFieldTypeSettings();
-        buildRows();
-        const d = new Date();
-        document.getElementById('ord-date').value = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-    });
+    window.addEventListener('DOMContentLoaded', async function() {
+    applyFieldTypeSettings();
+    buildRows();
+    const d = new Date();
+    document.getElementById('ord-date').value = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    
+    // سحب بيانات المناديب والحسابات فور فتح الصفحة مباشرة
+    await syncCloudDirect();
+});
 </script>
 </body>
 </html>
