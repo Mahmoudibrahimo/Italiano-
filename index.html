@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>شركة إيطاليانو للملابس الجاهزة | إيصال استلام نقدية</title>
+    <!-- مكتبات التصدير وقراءة الإكسيل والـ PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a2a6c;
+            --accent-red: #a30000;
+            --insta-purple: #5b217a;
+            --insta-purple-light: #6e2794;
+            --excel-border: #000;
+            --bg: #f2f4f8;
+            --success: #15803d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: #111; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 10px; }
+
+        .app-header {
+            width: 100%; max-width: 580px; background: linear-gradient(90deg, #1a2a6c 0%, #16225c 100%);
+            color: #fff; padding: 10px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 10px; border-bottom: 3px solid #e67e22;
+        }
+        .app-header .brand { font-size: 13.5px; font-weight: 800; }
+        .app-header .btn-nav-action { background: #e67e22; border: none; color: #fff; padding: 5px 12px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; }
+
+        .admin-dock {
+            width: 100%; max-width: 580px; display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+            gap: 5px; margin-bottom: 10px;
+        }
+        .dock-btn {
+            border: none; padding: 8px 4px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 3px; color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: 0.15s ease;
+        }
+        .dock-btn:active { transform: scale(0.96); }
+        .dock-btn.pending { background: linear-gradient(135deg, #d97706, #b45309); }
+        .dock-btn.approved { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .dock-btn.upload { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .dock-btn.reports { background: linear-gradient(135deg, #ec4899, #be185d); }
+        .dock-btn.log { background: linear-gradient(135deg, #0d9488, #0f766e); }
+        .dock-btn.trash { background: linear-gradient(135deg, #e11d48, #be123c); }
+        .dock-btn.excel { background: linear-gradient(135deg, #15803d, #166534); }
+        .dock-btn.reset { background: linear-gradient(135deg, #475569, #334155); }
+
+        .welcome-panel {
+            background: #fff; border-radius: 14px; padding: 30px 20px; width: 100%; max-width: 520px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08); text-align: center; margin-top: 15px;
+        }
+        .welcome-logo-badge {
+            background: #111; color: #fff; padding: 8px 14px; border-radius: 6px; display: inline-block;
+            font-size: 13px; font-weight: 900; line-height: 1.3; margin-bottom: 15px;
+        }
+        .client-type-btn {
+            width: 100%; padding: 16px 18px; margin: 10px 0; font-size: 15px; font-weight: 800; border-radius: 10px;
+            border: 2px solid #1a2a6c; background: #fff; color: #1a2a6c; cursor: pointer; transition: 0.2s ease;
+            box-shadow: 0 3px 8px rgba(26,42,108,0.08); text-align: right; display: flex; align-items: center; justify-content: space-between;
+        }
+        .client-type-btn:hover { background: #1a2a6c; color: #fff; transform: translateY(-1px); }
+
+        .sheet-wrap { width: 100%; max-width: 490px; background: #ede9e1; padding: 8px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+        .excel-sheet-card { background: #fff; border: 2px solid var(--excel-border); padding: 14px 10px; width: 100%; }
+        .sheet-head-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--excel-border); padding-bottom: 8px; margin-bottom: 8px; }
+        .sheet-logo-badge { background: #111; color: #fff; padding: 4px 7px; border-radius: 3px; text-align: center; font-size: 9px; font-weight: bold; line-height: 1.25; }
+        .sheet-titles-box { text-align: center; flex: 1; }
+        .sheet-titles-box h2 { font-size: 15px; font-weight: 900; color: #000; margin-bottom: 2px; }
+        .sheet-titles-box h3 { font-size: 13.5px; font-weight: 900; text-decoration: underline; color: #000; }
+
+        .excel-grid-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        .excel-grid-table td { border: 1.5px solid var(--excel-border); padding: 4px 6px; font-size: 12.5px; height: 32px; vertical-align: middle; }
+        .excel-grid-table .c-lbl { width: 34%; font-weight: 900; background: #fff; white-space: nowrap; }
+        .excel-grid-table .c-val { width: 66%; text-align: center; background: #fff; position: relative; }
+        .excel-grid-table input, .excel-grid-table select {
+            width: 100%; height: 100%; border: none; outline: none; background: transparent;
+            font-size: 12.5px; font-weight: bold; text-align: center; color: #000;
+        }
+        .excel-grid-table input:focus, .excel-grid-table select:focus { background: #e0f2fe; }
+        .field-locked { background: #f1f5f9 !important; color: #334155 !important; cursor: not-allowed; }
+        .receipt-id-yellow { background: #ffff00 !important; font-weight: 900; font-size: 15px; color: var(--accent-red) !important; }
+        
+        .area-toggle-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 4px; width: 100%;
+        }
+        .btn-toggle-area-mode {
+            background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 6px;
+            font-size: 9.5px; font-weight: 800; cursor: pointer; color: #1e293b; white-space: nowrap;
+        }
+        .btn-toggle-area-mode:hover { background: #cbd5e1; }
+
+        .stamp-box-area {
+            border: 1.5px solid var(--excel-border); height: 95px; margin-top: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #777;
+            background: #fafafa;
+        }
+        .btn-dispatch-receipt {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff;
+            font-size: 15px; font-weight: 900; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(22,163,74,0.3);
+        }
+
+        /* نافذة إنستاباي التفاعلية اللحظية (إثبات دفع العميل) */
+        .insta-screen-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
+            display: none; justify-content: center; align-items: center; z-index: 100000; padding: 16px;
+            backdrop-filter: blur(5px);
+        }
+        .insta-receipt-card {
+            width: 100%; max-width: 385px; background: #ffffff; border-radius: 28px; padding: 28px 22px 22px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.35); text-align: center; animation: instaPopIn 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; max-height: 94vh; overflow-y: auto;
+        }
+        @keyframes instaPopIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .insta-circle-check {
+            width: 76px; height: 76px; background: var(--insta-purple); color: #fff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 14px;
+            box-shadow: 0 10px 24px rgba(91, 33, 122, 0.4); transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .insta-circle-check.approved-state {
+            background: #16a34a !important;
+            box-shadow: 0 10px 24px rgba(22, 163, 74, 0.45) !important;
+            transform: scale(1.06);
+        }
+        .insta-main-text { font-size: 19px; font-weight: 900; color: #1e1e24; margin-bottom: 3px; letter-spacing: -0.2px; }
+        .insta-sub-text { font-size: 12.5px; color: #82828e; margin-bottom: 12px; font-weight: 600; }
+        .insta-money-val { font-size: 28px; font-weight: 900; color: var(--insta-purple); margin: 4px 0 16px; letter-spacing: 0.5px; direction: ltr; }
+        
+        .insta-info-grid {
+            background: #fbfbfd; border: 1.5px solid #edf0f5; border-radius: 18px; padding: 14px 16px;
+            font-size: 13px; text-align: right; margin-bottom: 14px;
+        }
+        .insta-info-row {
+            display: flex; justify-content: space-between; align-items: center; padding: 7px 0;
+            border-bottom: 1px dashed #e5e8ee;
+        }
+        .insta-info-row:last-child { border-bottom: none; padding-bottom: 2px; }
+        .insta-info-row:first-child { padding-top: 2px; }
+        .insta-k { color: #767986; font-weight: 600; font-size: 12px; }
+        .insta-v { color: #16181f; font-weight: 800; font-size: 12.5px; max-width: 62%; text-align: left; word-break: break-word; }
+        
+        .proof-badge-stamp {
+            display: none; background: #ecfdf5; border: 1.5px solid #a7f3d0; color: #047857;
+            padding: 8px 10px; border-radius: 10px; font-size: 11.5px; font-weight: 800;
+            margin-bottom: 12px; text-align: center;
+        }
+
+        .btn-insta-ok {
+            width: 100%; padding: 12px; background: var(--insta-purple); color: #fff; border: none;
+            border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 6px 18px rgba(91, 33, 122, 0.35); transition: background 0.2s ease;
+        }
+        .btn-insta-ok:hover { background: var(--insta-purple-light); }
+
+        .btn-client-pdf-dl {
+            width: 100%; padding: 13px; background: #16a34a; color: #fff; border: none;
+            border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; margin-bottom: 8px;
+            box-shadow: 0 4px 14px rgba(22,163,74,0.35); display: none;
+        }
+
+        /* شاشات النوافذ: ملء الشاشة تماماً ما عدا العداد */
+        .modal-layer {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none;
+            justify-content: stretch; align-items: stretch; z-index: 99999; padding: 0;
+        }
+        .modal-body-panel {
+            width: 100%; max-width: none; background: #fff; border-radius: 0; height: 100vh; max-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden; margin: 0;
+        }
+        .modal-header-bar {
+            background: #1a2a6c; color: #fff; padding: 12px 16px; display: flex; justify-content: space-between;
+            align-items: center; font-size: 14.5px; font-weight: 800; flex-shrink: 0; border-bottom: 2px solid #e67e22;
+        }
+        .modal-content-area { padding: 14px; overflow-y: auto; flex: 1; }
+
+        /* نافذة العداد تبقى صغيرة في المنتصف */
+        #counterManagerModal {
+            justify-content: center !important; align-items: center !important; padding: 15px !important;
+        }
+        #counterManagerModal .modal-body-panel {
+            width: 100% !important; max-width: 410px !important; height: auto !important; max-height: 90vh !important;
+            border-radius: 14px !important; box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
+        }
+        #counterManagerModal .modal-header-bar { border-radius: 14px 14px 0 0; }
+
+        .filter-control-box {
+            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px;
+            margin-bottom: 12px; font-size: 11.5px;
+        }
+        .filter-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+        .filter-row:last-child { margin-bottom: 0; }
+        .filter-input { padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 5px; outline: none; font-size: 11.5px; }
+        .btn-filter-tag {
+            background: #e2e8f0; border: 1px solid #cbd5e1; padding: 3px 8px; border-radius: 4px;
+            font-size: 10.5px; font-weight: bold; cursor: pointer;
+        }
+        .btn-filter-tag:hover { background: #1a2a6c; color: #fff; }
+
+        .kpi-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+        .kpi-tile { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; text-align: center; }
+        .kpi-tile .k-val { font-size: 19px; font-weight: 900; color: var(--primary); margin-top: 4px; }
+        .kpi-tile .k-lbl { font-size: 11px; color: #64748b; font-weight: 700; }
+
+        .list-row-item {
+            border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-bottom: 8px;
+            background: #fff; display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-action-pill { border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; color: #fff; }
+        .btn-approve { background: var(--success); }
+        .btn-delete { background: var(--accent-red); }
+        .btn-view { background: var(--primary); }
+        .btn-restore { background: #0284c7; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="brand">★ شركة إيطاليانو للملابس الجاهزة</div>
+        <div>
+            <button class="btn-nav-action" id="btnAdminGate" onclick="openAdminPortal()">🔐 بوابة الأدمن</button>
+            <button class="btn-nav-action hidden" id="btnClientGate" onclick="openClientHome()">📄 إيصال جديد</button>
+        </div>
+    </div>
+
+    <div class="admin-dock hidden" id="adminControlBar">
+        <button class="dock-btn pending" onclick="openPendingScreen()">⏳ المعلق</button>
+        <button class="dock-btn approved" onclick="openApprovedScreen()">📂 المعتمد</button>
+        <button class="dock-btn upload" onclick="openExcelUploadModal()">📥 قاعدة العملاء</button>
+        <button class="dock-btn reports" onclick="openReportsScreen()">📈 التقارير</button>
+        <button class="dock-btn log" onclick="openAuditLogScreen()">📋 السجل</button>
+        <button class="dock-btn trash" onclick="openTrashScreen()">🗑️ السلة</button>
+        <button class="dock-btn excel" onclick="exportMasterExcel()">📊 إكسل</button>
+        <button class="dock-btn reset" onclick="openResetCounterModal()">🔢 العداد</button>
+    </div>
+
+    <div class="welcome-panel" id="welcomeHomeSection">
+        <div class="welcome-logo-badge">
+            ★ إيطاليانو ★<br>
+            <span style="font-size: 8px;">للملابس الجاهزة</span>
+        </div>
+        <h3 style="color: var(--primary); font-size: 17px; margin-bottom: 6px; font-weight: 900;">منظومة إيصالات استلام النقدية</h3>
+        <p style="font-size: 12.5px; color: #64748b; margin-bottom: 22px;">اختر صفة التعامل لبدء تحرير الإيصال:</p>
+
+        <button class="client-type-btn" onclick="startReceiptFlow('عميل جديد اول تعامل')">
+            <span>👤 عميل جديد يسجل لأول مرة لدى إيطاليانو</span>
+            <span style="font-size: 18px;">←</span>
+        </button>
+        <button class="client-type-btn" onclick="startReceiptFlow('عميل مسجل مسبقا تعامل قديم')">
+            <span>🔄 عميل حالي مسجل مسبقاً لدى إيطاليانو</span>
+            <span style="font-size: 18px;">←</span>
+        </button>
+    </div>
+
+    <div class="sheet-wrap hidden" id="sheetContainerWrap">
+        <div class="excel-sheet-card" id="excelSheetNode">
+            <div class="sheet-head-row">
+                <div class="sheet-logo-badge">
+                    ★ إيطاليانو ★<br>
+                    <span style="font-size: 7.5px;">للملابس الجاهزة</span>
+                </div>
+                <div class="sheet-titles-box">
+                    <h2>إيطاليانو للملابس الجاهزة</h2>
+                    <h3>إيصال استلام نقدية</h3>
+                </div>
+            </div>
+
+            <table class="excel-grid-table">
+                <tr>
+                    <td class="c-lbl">رقم الإيصال</td>
+                    <td class="c-val receipt-id-yellow"><input type="text" id="orderNumberInput" readonly></td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">التاريخ</td>
+                    <td class="c-val field-locked"><input type="text" id="orderDateInput" readonly title="التاريخ محدد تلقائياً عبر النظام"></td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">اسم العميل</td>
+                    <td class="c-val"><input type="text" id="clientNameInput" placeholder="اكتب اسم العميل"></td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">رقم الهاتف</td>
+                    <td class="c-val">
+                        <input type="tel" id="clientPhoneInput" placeholder="01xxxxxxxxx" maxlength="11" inputmode="numeric" oninput="handlePhoneInput(this)" onchange="lookupClientByPhone(this.value)">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">
+                        <div class="area-toggle-row">
+                            <span>المحافظة</span>
+                            <button type="button" class="btn-toggle-area-mode" id="btnToggleAreaMode" onclick="toggleAreaInputType()">✏️ كتابة</button>
+                        </div>
+                    </td>
+                    <td class="c-val" id="areaFieldContainer">
+                        <select id="clientAreaSelect">
+                            <option value="">اختر المحافظة...</option>
+                            <option value="القاهرة">القاهرة</option>
+                            <option value="الجيزة">الجيزة</option>
+                            <option value="الإسكندرية">الإسكندرية</option>
+                            <option value="الدقهلية">الدقهلية</option>
+                            <option value="البحيرة">البحيرة</option>
+                            <option value="الغربية">الغربية</option>
+                            <option value="الشرقية">الشرقية</option>
+                            <option value="المنوفية">المنوفية</option>
+                            <option value="القليوبية">القليوبية</option>
+                            <option value="كفر الشيخ">كفر الشيخ</option>
+                            <option value="دمياط">دمياط</option>
+                            <option value="بورسعيد">بورسعيد</option>
+                            <option value="الإسماعيلية">الإسماعيلية</option>
+                            <option value="السويس">السويس</option>
+                            <option value="شمال سيناء">شمال سيناء</option>
+                            <option value="جنوب سيناء">جنوب سيناء</option>
+                            <option value="بني سويف">بني سويف</option>
+                            <option value="الفيوم">الفيوم</option>
+                            <option value="المنيا">المنيا</option>
+                            <option value="أسيوط">أسيوط</option>
+                            <option value="سوهاج">سوهاج</option>
+                            <option value="قنا">قنا</option>
+                            <option value="الأقصر">الأقصر</option>
+                            <option value="أسوان">أسوان</option>
+                            <option value="البحر الأحمر">البحر الأحمر</option>
+                            <option value="الوادي الجديد">الوادي الجديد</option>
+                            <option value="مطروح">مطروح</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">المندوب</td>
+                    <td class="c-val"><input type="text" id="repNameInput" placeholder="اكتب اسم المندوب"></td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">حالة العميل</td>
+                    <td class="c-val field-locked"><input type="text" id="clientStatusInput" readonly style="color: #1a2a6c;"></td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">المبلغ</td>
+                    <td class="c-val"><input type="number" id="receiptAmountInput" placeholder="0" oninput="updateAutoTafqeet(this.value)"></td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">فقط وقدره</td>
+                    <td class="c-val field-locked"><input type="text" id="tafqeetInput" value="—" readonly></td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">طريقة الدفع</td>
+                    <td class="c-val">
+                        <select id="paymentMethodSelect">
+                            <option value="نقدا كاش">نقدا كاش</option>
+                            <option value="إنستاباي InstaPay">إنستاباي InstaPay</option>
+                            <option value="فودافون كاش">فودافون كاش</option>
+                            <option value="تحويل بنكي">تحويل بنكي</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-lbl">وذلك مقابل</td>
+                    <td class="c-val"><input type="text" id="receiptReasonInput" value="دفعة مقدمة حجز بضاعة"></td>
+                </tr>
+            </table>
+
+            <div style="font-size: 12.5px; font-weight: 900; margin-top: 6px;">الختم</div>
+            <div class="stamp-box-area">
+                مساحة الختم والاعتماد الرسمي
+            </div>
+
+            <button type="button" class="btn-dispatch-receipt" id="btnSubmitDispatch" onclick="submitReceiptOrder()">إرسال الإيصال للاعتماد 🚀</button>
+        </div>
+    </div>
+
+    <!-- نافذة إنستاباي التفاعلية اللحظية (إثبات الدفع والاعتماد الرسمي) -->
+    <div class="insta-screen-overlay" id="instaSuccessModal">
+        <div class="insta-receipt-card">
+            <div class="insta-circle-check" id="instaCheckIcon">✓</div>
+            <div class="insta-main-text" id="instaMainHeaderTitle">تم إرسال الإيصال بنجاح</div>
+            <div class="insta-sub-text">شركة إيطاليانو للملابس الجاهزة</div>
+            
+            <div class="insta-money-val" id="instaMoneyDisplay">EGP 0.00</div>
+
+            <div class="proof-badge-stamp" id="instaProofBadge">
+                ✔ إثبات سداد رسمي معتمد من شركة إيطاليانو للملابس الجاهزة
+            </div>
+            
+            <div class="insta-info-grid">
+                <div class="insta-info-row">
+                    <span class="insta-k">رقم الإيصال</span>
+                    <span class="insta-v" id="instaRecNum">#0</span>
+                </div>
+                <div class="insta-info-row">
+                    <span class="insta-k">اسم العميل</span>
+                    <span class="insta-v" id="instaClientName">-</span>
+                </div>
+                <div class="insta-info-row">
+                    <span class="insta-k">رقم الهاتف</span>
+                    <span class="insta-v" id="instaPhoneVal">-</span>
+                </div>
+                <div class="insta-info-row">
+                    <span class="insta-k">المحافظة</span>
+                    <span class="insta-v" id="instaAreaVal">-</span>
+                </div>
+                <div class="insta-info-row">
+                    <span class="insta-k">المندوب</span>
+                    <span class="insta-v" id="instaRepVal" style="color:#1a2a6c;">-</span>
+                </div>
+                <div class="insta-info-row">
+                    <span class="insta-k">طريقة السداد</span>
+                    <span class="insta-v" id="instaPaymentType">-</span>
+                </div>
+                <div class="insta-info-row">
+                    <span class="insta-k">التاريخ والوقت</span>
+                    <span class="insta-v" id="instaDateStamp" style="direction: ltr;">-</span>
+                </div>
+                <div class="insta-info-row">
+                    <span class="insta-k">حالة الإيصال</span>
+                    <span class="insta-v" id="instaOrderStatusBadge" style="color: #b45309;">قيد مراجعة واعتماد الإدارة</span>
+                </div>
+            </div>
+
+            <button class="btn-client-pdf-dl" id="btnClientDownloadPdf" onclick="downloadCurrentClientReceiptPdf()">📄 تنزيل الإيصال المعتمد PDF (إثبات الدفع)</button>
+            <button class="btn-insta-ok" onclick="closeInstaSuccess()">تم ومتابعة</button>
+        </div>
+    </div>
+
+    <!-- نافذة استيراد قاعدة العملاء (ملء الشاشة) -->
+    <div class="modal-layer" id="excelUploadModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar" style="background:#6d28d9;">
+                <span>📥 ربط واستيراد قاعدة بيانات العملاء Excel</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('excelUploadModal')">✕</span>
+            </div>
+            <div class="modal-content-area" style="padding: 20px;">
+                <p style="font-size:13px; color:#475569; margin-bottom:14px; line-height:1.6;">
+                    ارفع ملف الإكسيل الذي يحتوي على بيانات العملاء (الاسم، الهاتف، المحافظة، المندوب).<br>
+                    سيتعرف النظام تلقائياً على الأعمدة ويحفظها لتتم التعبئة فور كتابة رقم الهاتف في الإيصال.
+                </p>
+                <div style="border:2px dashed #8b5cf6; padding:30px; border-radius:10px; text-align:center; background:#faf5ff; margin-bottom:16px;">
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display:none;" onchange="handleExcelUpload(event)">
+                    <button class="btn-action-pill" style="background:#6d28d9; padding:12px 24px; font-size:14px;" onclick="document.getElementById('excelFileInput').click()">📁 اختيار ملف الإكسيل من الجهاز</button>
+                    <div id="uploadStatusText" style="margin-top:12px; font-size:13px; color:#6b21a8; font-weight:bold;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; background:#f8fafc; padding:12px 16px; border-radius:8px;">
+                    <span>العملاء المسجلين حالياً:</span>
+                    <strong id="clientsCountDisplay" style="color:#1a2a6c; font-size:16px;">0 عميل</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة دخول الأدمن (ملء الشاشة) -->
+    <div class="modal-layer" id="loginAdminModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar">
+                <span>🔐 دخول أدمن إيطاليانو</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('loginAdminModal')">✕</span>
+            </div>
+            <div class="modal-content-area" style="padding: 24px; display:flex; justify-content:center; align-items:center;">
+                <div style="width:100%; max-width:360px; text-align:center;">
+                    <div style="font-size:36px; margin-bottom:10px;">🔐</div>
+                    <input type="text" id="adminUserField" placeholder="اسم المستخدم" onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('adminPassField').focus();}" style="width:100%; padding:12px; margin-bottom:12px; border:1px solid #ccc; border-radius:8px; font-size:14px; text-align:center;">
+                    <input type="password" id="adminPassField" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter'){event.preventDefault(); verifyAdminLogin();}" style="width:100%; padding:12px; margin-bottom:16px; border:1px solid #ccc; border-radius:8px; font-size:14px; text-align:center;">
+                    <button class="btn-dispatch-receipt" style="margin-top:0;" onclick="verifyAdminLogin()">دخول المنظومة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- لوحة التقارير (ملء الشاشة) -->
+    <div class="modal-layer" id="reportsModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar" style="background:#be185d;">
+                <span>📈 لوحة التقارير والتحليلات وفلترة الدفع والتواريخ</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('reportsModal')">✕</span>
+            </div>
+            <div class="modal-content-area">
+                <div class="filter-control-box">
+                    <div class="filter-row">
+                        <span style="font-weight:bold; color:#1a2a6c;">📅 فلترة التواريخ</span>
+                        <span>من</span>
+                        <input type="date" id="repDateFrom" class="filter-input" onchange="generateReportData()">
+                        <span>إلى</span>
+                        <input type="date" id="repDateTo" class="filter-input" onchange="generateReportData()">
+                    </div>
+                    <div class="filter-row">
+                        <button class="btn-filter-tag" onclick="setDateFilterPreset('today')">اليوم</button>
+                        <button class="btn-filter-tag" onclick="setDateFilterPreset('yesterday')">أمس</button>
+                        <button class="btn-filter-tag" onclick="setDateFilterPreset('week')">آخر 7 أيام</button>
+                        <button class="btn-filter-tag" onclick="setDateFilterPreset('month')">هذا الشهر</button>
+                        <button class="btn-filter-tag" onclick="setDateFilterPreset('all')">كل الفترات</button>
+                    </div>
+                    <div class="filter-row" style="margin-top:4px;">
+                        <span style="font-weight:bold; color:#1a2a6c;">💳 طريقة الدفع</span>
+                        <select id="repPayFilter" class="filter-input" onchange="generateReportData()">
+                            <option value="">كل طرق الدفع</option>
+                            <option value="نقدا كاش">نقدا كاش</option>
+                            <option value="إنستاباي InstaPay">إنستاباي InstaPay</option>
+                            <option value="فودافون كاش">فودافون كاش</option>
+                            <option value="تحويل بنكي">تحويل بنكي</option>
+                        </select>
+                        <span style="font-weight:bold; color:#1a2a6c;">👤 حالة العميل</span>
+                        <select id="repStatusFilter" class="filter-input" onchange="generateReportData()">
+                            <option value="">كل الحالات</option>
+                            <option value="عميل جديد اول تعامل">عميل جديد</option>
+                            <option value="عميل مسجل مسبقا تعامل قديم">عميل قديم</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="kpi-summary-grid">
+                    <div class="kpi-tile">
+                        <div class="k-lbl">إجمالي المبالغ المحصلة</div>
+                        <div class="k-val" id="kpiTotalRevenue" style="color:var(--success);">0.00 EGP</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="k-lbl">عدد الإيصالات المعتمدة</div>
+                        <div class="k-val" id="kpiTotalCount">0</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="k-lbl">متوسط قيمة الإيصال</div>
+                        <div class="k-val" id="kpiAvgAmount" style="color:#0284c7;">0.00 EGP</div>
+                    </div>
+                </div>
+
+                <h4 style="font-size:13px; color:#1a2a6c; margin-bottom:8px;">💳 توزيع المبالغ حسب طرق الدفع</h4>
+                <div id="paymentStatsReportContainer" style="margin-bottom:12px;"></div>
+
+                <h4 style="font-size:13px; color:#1a2a6c; margin-bottom:8px;">📜 الإيصالات المحققة ضمن الفلترة</h4>
+                <div id="reportOrdersListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة المعلق (ملء الشاشة) -->
+    <div class="modal-layer" id="pendingModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar" style="background:#b45309;">
+                <span>⏳ الإيصالات الواردة المعلقة تحتاج موافقة أو حذف</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('pendingModal')">✕</span>
+            </div>
+            <div class="modal-content-area" id="pendingListSurface"></div>
+        </div>
+    </div>
+
+    <!-- نافذة المعتمد (ملء الشاشة) -->
+    <div class="modal-layer" id="approvedModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar" style="background:#0284c7;">
+                <span>✅ الأرشيف المعتمد</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('approvedModal')">✕</span>
+            </div>
+            <div class="modal-content-area">
+                <div style="margin-bottom:10px;">
+                    <input type="text" id="approvedSearchInput" placeholder="🔍 بحث برقم الهاتف أو الاسم أو المحافظة أو رقم الإيصال" oninput="renderApprovedList()" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px;">
+                </div>
+                <div id="approvedListSurface"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة السجل (ملء الشاشة) -->
+    <div class="modal-layer" id="auditLogModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar" style="background:#0f766e;">
+                <span>📋 سجل العمليات والرقابة Audit Log</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('auditLogModal')">✕</span>
+            </div>
+            <div style="padding:10px 14px; background:#f0fdfa; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ccfbf1; flex-shrink:0;">
+                <span style="font-size:12px; color:#0f766e; font-weight:bold;">تسجيل كامل لكافة الحركات بالوقت والتاريخ</span>
+                <button class="btn-action-pill btn-delete" onclick="clearAuditLogRecords()">مسح السجل 🔥</button>
+            </div>
+            <div style="padding:10px 14px 0;">
+                <input type="text" id="auditSearchInput" placeholder="🔍 بحث في السجل برقم الإيصال أو الإجراء أو التفاصيل أو المستخدم" oninput="renderAuditLogList()" style="width:100%; padding:9px; border:1px solid #cbd5e1; border-radius:6px; font-size:12.5px;">
+            </div>
+            <div class="modal-content-area" id="auditLogSurface"></div>
+        </div>
+    </div>
+
+    <!-- نافذة السلة (ملء الشاشة) -->
+    <div class="modal-layer" id="trashModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar" style="background:#be123c;">
+                <span>🗑️ سلة المحذوفات استعادة أو مسح نهائي</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('trashModal')">✕</span>
+            </div>
+            <div style="padding:10px 14px; background:#fff1f2; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; color:#9f1239; font-weight:bold;">يمكنك استرجاع الإيصال أو حذفه نهائياً</span>
+                <button class="btn-action-pill btn-delete" onclick="emptyEntireTrashBin()">تفريغ السلة نهائياً 🔥</button>
+            </div>
+            <div class="modal-content-area" id="trashListSurface"></div>
+        </div>
+    </div>
+
+    <!-- نافذة العداد (نافذة منبثقة صغيرة بالمنتصف) -->
+    <div class="modal-layer" id="counterManagerModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar" style="background:#334155;">
+                <span>🔢 إدارة تصفير وبداية العداد اليومي</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('counterManagerModal')">✕</span>
+            </div>
+            <div class="modal-content-area" style="padding:16px;">
+                <p style="font-size:12px; color:#475569; margin-bottom:12px;">
+                    النظام يبدأ الترقيم من <strong>رقم 1 تلقائياً كل يوم جديد</strong>. يمكنك أيضاً ضبط رقم الإيصال القادم يدوياً.
+                </p>
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">تعيين رقم الإيصال القادم</label>
+                    <input type="number" id="customNextIdInput" value="1" min="1" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; font-size:16px; font-weight:bold; text-align:center;">
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-action-pill btn-approve" style="flex:1; padding:10px;" onclick="applyCustomCounterId()">حفظ الرقم القادم</button>
+                    <button class="btn-action-pill btn-delete" style="flex:1; padding:10px;" onclick="resetCounterToOne()">تصفير إلى 1 الآن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة المعاينة والطباعة (ملء الشاشة) -->
+    <div class="modal-layer" id="receiptViewerModal">
+        <div class="modal-body-panel">
+            <div class="modal-header-bar">
+                <span>📄 معاينة وطباعة الإيصال ورقة A5 كاملة</span>
+                <span style="cursor:pointer; font-size:18px;" onclick="hideModal('receiptViewerModal')">✕</span>
+            </div>
+            <div class="modal-content-area" style="background:#cbd5e1; padding:12px; display:flex; flex-direction:column; align-items:center;">
+                <div id="receiptViewerRenderZone" style="width:100%; display:flex; justify-content:center;"></div>
+                <div style="display:flex; justify-content:space-between; width:100%; max-width:142mm; margin-top:10px; background:#fff; padding:10px; border-radius:6px;">
+                    <button class="btn-action-pill btn-approve" style="padding:10px 20px; font-size:13px;" onclick="printRenderedZonePDF()">🖨️ طباعة وحفظ PDF A5</button>
+                    <button class="btn-action-pill btn-delete" style="padding:10px 20px; font-size:13px;" onclick="hideModal('receiptViewerModal')">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // رابط السحابة المعتمد لمشروعك (بدون شرطة مائلة في النهاية لضمان عمل كافة مسارات REST API)
+    const CLOUD_DB_URL = "https://oda-italiano-default-rtdb.firebaseio.com";
+
+    const EGYPT_GOVERNORATES = [
+        "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحيرة", "الغربية", "الشرقية",
+        "المنوفية", "القليوبية", "كفر الشيخ", "دمياط", "بورسعيد", "الإسماعيلية", "السويس",
+        "شمال سيناء", "جنوب سيناء", "بني سويف", "الفيوم", "المنيا", "أسيوط", "سوهاج",
+        "قنا", "الأقصر", "أسوان", "البحر الأحمر", "الوادي الجديد", "مطروح"
+    ];
+
+    const INITIAL_PRELOADED_CLIENTS = [
+        { phone: "01004061184", name: "اماني ايمن", area: "القليوبية", rep: "احمد سعد online" },
+        { phone: "01022920684", name: "محمد عبد النبي احمد", area: "البحر الأحمر", rep: "احمد سعد online" },
+        { phone: "01003935390", name: "شوقي فتحي", area: "القاهرة", rep: "احمد سعد online" },
+        { phone: "01039253542", name: "ايمان علي", area: "القليوبية", rep: "عبدالرحمن سمير" },
+        { phone: "01116619016", name: "احمد نور محمد", area: "—", rep: "عبدالرحمن سمير" },
+        { phone: "01092689978", name: "ابراهيم حمدي سراج", area: "دمياط", rep: "عبدالرحمن سمير" }
+    ];
+
+    let localOrders = JSON.parse(localStorage.getItem('italiano_v13_orders')) || [];
+    let localTrash = JSON.parse(localStorage.getItem('italiano_v13_trash')) || [];
+    let localAudit = JSON.parse(localStorage.getItem('italiano_v13_audit')) || [];
+    let clientsDatabase = JSON.parse(localStorage.getItem('italiano_v13_clients')) || INITIAL_PRELOADED_CLIENTS;
+    let manualCounterOverride = parseInt(localStorage.getItem('italiano_v13_counter')) || null;
+    let isAdminLoggedIn = false;
+    let activeInspectedOrder = null;
+    let currentWaitingReceiptKey = null;
+    let clientStatusPollingTimer = null;
+    let isAreaDropdownMode = true;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        refreshDeviceDate();
+        updateClientsCountBadge();
+        setupKeyboardEnterNavigation();
+        if (CLOUD_DB_URL) {
+            await syncCloudCashOrders();
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'italiano_v13_orders') {
+                localOrders = JSON.parse(e.newValue || '[]');
+                if (currentWaitingReceiptKey) {
+                    const matched = localOrders.find(o => o.uniqueKey === currentWaitingReceiptKey);
+                    if (matched && matched.status === 'approved') {
+                        triggerClientApprovalSuccess(matched);
+                    }
+                }
+            }
+        });
+    });
+
+    function toggleAreaInputType() {
+        const container = document.getElementById('areaFieldContainer');
+        const btn = document.getElementById('btnToggleAreaMode');
+        const currentVal = getEnteredAreaValue();
+
+        isAreaDropdownMode = !isAreaDropdownMode;
+
+        if (isAreaDropdownMode) {
+            let optionsHtml = '<option value="">اختر المحافظة...</option>' + 
+                EGYPT_GOVERNORATES.map(gov => `<option value="${gov}" ${gov === currentVal ? 'selected' : ''}>${gov}</option>`).join('');
+            container.innerHTML = `<select id="clientAreaSelect">${optionsHtml}</select>`;
+            btn.innerText = "✏️ كتابة";
+        } else {
+            container.innerHTML = `<input type="text" id="clientAreaInput" value="${currentVal}" placeholder="اكتب المحافظة...">`;
+            btn.innerText = "🔘 منسدلة";
+        }
+    }
+
+    function getEnteredAreaValue() {
+        if (isAreaDropdownMode) {
+            const el = document.getElementById('clientAreaSelect');
+            return el ? el.value.trim() : '';
+        } else {
+            const el = document.getElementById('clientAreaInput');
+            return el ? el.value.trim() : '';
+        }
+    }
+
+    function setEnteredAreaValue(val) {
+        val = (val || '').trim();
+        if (isAreaDropdownMode) {
+            const el = document.getElementById('clientAreaSelect');
+            if (el) {
+                if (EGYPT_GOVERNORATES.includes(val)) {
+                    el.value = val;
+                } else if (val) {
+                    toggleAreaInputType();
+                    const txtEl = document.getElementById('clientAreaInput');
+                    if (txtEl) txtEl.value = val;
+                } else {
+                    el.value = '';
+                }
+            }
+        } else {
+            const el = document.getElementById('clientAreaInput');
+            if (el) el.value = val;
+        }
+    }
+
+    function setupKeyboardEnterNavigation() {
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' || e.shiftKey) return;
+            const sheet = document.getElementById('sheetContainerWrap');
+            if (!sheet || sheet.classList.contains('hidden') || !sheet.contains(e.target)) return;
+
+            const fields = Array.from(document.querySelectorAll('#excelSheetNode input:not([readonly]):not([type="hidden"]), #excelSheetNode select'))
+                .filter(f => f.offsetParent !== null);
+            
+            const idx = fields.indexOf(e.target);
+            if (idx === -1) return;
+
+            e.preventDefault();
+            if (idx + 1 < fields.length) {
+                fields[idx + 1].focus();
+                if (fields[idx + 1].select) fields[idx + 1].select();
+            } else {
+                const btn = document.getElementById('btnSubmitDispatch');
+                if (btn) btn.focus();
+            }
+        });
+    }
+
+    function handlePhoneInput(el) {
+        let val = el.value.replace(/[^0-9]/g, '');
+        if (val.length > 0 && !val.startsWith('0')) {
+            val = '0' + val;
+        }
+        if (val.length > 1 && !val.startsWith('01')) {
+            val = '01' + val.slice(2);
+        }
+        el.value = val.slice(0, 11);
+        if (el.value.length === 11) {
+            lookupClientByPhone(el.value);
+        }
+    }
+
+    function formatEnglishNumber(num, decimals = 2) {
+        const val = parseFloat(num) || 0;
+        return val.toLocaleString('en-US', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        });
+    }
+
+    function getTodayFormatted() {
+        const d = new Date();
+        return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    }
+
+    function refreshDeviceDate() {
+        const el = document.getElementById('orderDateInput');
+        if (el) el.value = getTodayFormatted();
+    }
+
+    function updateClientsCountBadge() {
+        const badge = document.getElementById('clientsCountDisplay');
+        if (badge) badge.innerText = `${clientsDatabase.length} عميل مسجل`;
+    }
+
+    function playInstaApprovalSound() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+            osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.65);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.65);
+        } catch(e) {}
+    }
+
+    async function syncCloudCashOrders() {
+        if (!CLOUD_DB_URL) return;
+        try {
+            const res = await fetch(`${CLOUD_DB_URL}/cash_receipts.json?t=${Date.now()}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data) {
+                    localOrders = Array.isArray(data) ? data.filter(Boolean) : Object.values(data);
+                    localStorage.setItem('italiano_v13_orders', JSON.stringify(localOrders));
+                }
+            }
+        } catch(e) {}
+    }
+
+    function openClientHome() {
+        if (clientStatusPollingTimer) clearInterval(clientStatusPollingTimer);
+        document.getElementById('welcomeHomeSection').classList.remove('hidden');
+        document.getElementById('sheetContainerWrap').classList.add('hidden');
+        document.getElementById('btnClientGate').classList.add('hidden');
+        document.getElementById('btnAdminGate').classList.remove('hidden');
+    }
+
+    function openAdminPortal() {
+        if (isAdminLoggedIn) {
+            openPendingScreen();
+        } else {
+            showModal('loginAdminModal');
+        }
+    }
+
+    function verifyAdminLogin() {
+        const u = document.getElementById('adminUserField').value.trim();
+        const p = document.getElementById('adminPassField').value.trim();
+
+        if (u === '23' && p === '23') {
+            isAdminLoggedIn = true;
+            hideModal('loginAdminModal');
+            document.getElementById('adminControlBar').classList.remove('hidden');
+            document.getElementById('btnAdminGate').innerText = '🛡️ لوحة التحكم';
+            openPendingScreen();
+        } else {
+            alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+        }
+    }
+
+    function normalizeEgyptianPhone(p) {
+        if (!p) return '';
+        let str = p.toString().trim();
+        if (str.includes('.')) str = str.split('.')[0];
+        let digits = str.replace(/[^0-9]/g, '');
+        if (digits.startsWith('20') && digits.length >= 12) digits = digits.slice(2);
+        if (digits.length === 10 && digits.startsWith('1')) digits = '0' + digits;
+        return digits;
+    }
+
+    function lookupClientByPhone(phoneVal) {
+        const cleanInput = normalizeEgyptianPhone(phoneVal);
+        if (cleanInput.length !== 11) return;
+
+        const match = clientsDatabase.find(c => normalizeEgyptianPhone(c.phone) === cleanInput);
+        if (match) {
+            if (match.name) document.getElementById('clientNameInput').value = match.name;
+            if (match.area) setEnteredAreaValue(match.area);
+            if (match.rep) document.getElementById('repNameInput').value = match.rep;
+        }
+    }
+
+    function openExcelUploadModal() {
+        updateClientsCountBadge();
+        showModal('excelUploadModal');
+    }
+
+    function findColumnKeySmart(keys, priorityList, excludeList = []) {
+        for (const p of priorityList) {
+            const exact = keys.find(k => k.trim().toLowerCase() === p.toLowerCase());
+            if (exact) return exact;
+        }
+        for (const p of priorityList) {
+            const match = keys.find(k => {
+                const kl = k.trim().toLowerCase();
+                const hasP = kl.includes(p.toLowerCase());
+                const hasExclude = excludeList.some(ex => kl.includes(ex.toLowerCase()));
+                return hasP && !hasExclude;
+            });
+            if (match) return match;
+        }
+        return null;
+    }
+
+    function handleExcelUpload(evt) {
+        const file = evt.target.files[0];
+        if (!file) return;
+
+        const statusEl = document.getElementById('uploadStatusText');
+        statusEl.innerText = "جاري قراءة واستيراد ملف الإكسيل...";
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+                if (!rows || rows.length === 0) {
+                    alert('ملف الإكسيل فارغ');
+                    statusEl.innerText = '';
+                    return;
+                }
+
+                const keys = Object.keys(rows[0]);
+                const phoneKey = findColumnKeySmart(keys, ['تليفون العميل', 'رقم الهاتف', 'تليفون', 'هاتف', 'موبايل', 'phone', 'mobile', 'tel'], ['تاريخ', 'استلام']);
+                const nameKey = findColumnKeySmart(keys, ['اسم العميل', 'اسم', 'العميل', 'client', 'name'], ['تاريخ', 'استلام', 'تليفون', 'هاتف', 'عنوان', 'حاله', 'شركه']);
+                const govKey = findColumnKeySmart(keys, ['المحافظه', 'المحافظة', 'محافظ', 'governorate', 'gov', 'عنوان العميل', 'العنوان', 'city', 'address']);
+                const repKey = findColumnKeySmart(keys, ['المندوب', 'مندوب', 'مسؤول', 'rep', 'agent'], ['تاريخ', 'استلام']);
+
+                if (!phoneKey) {
+                    alert('لم يتم العثور على عمود يحمل رقم التليفون!');
+                    statusEl.innerText = '';
+                    return;
+                }
+
+                const imported = [];
+                rows.forEach(r => {
+                    const rawPhone = (r[phoneKey] || '').toString().trim();
+                    if (rawPhone) {
+                        let rawName = nameKey ? (r[nameKey] || '').toString().trim() : '';
+                        let rawGov = govKey ? (r[govKey] || '').toString().trim() : '';
+
+                        imported.push({
+                            phone: rawPhone,
+                            name: rawName,
+                            area: rawGov,
+                            rep: repKey ? ((r[repKey] || '').toString().trim() || '') : ''
+                        });
+                    }
+                });
+
+                clientsDatabase = imported;
+                localStorage.setItem('italiano_v13_clients', JSON.stringify(clientsDatabase));
+                updateClientsCountBadge();
+
+                addAuditRecord('قاعدة العملاء', 'استيراد إكسيل', `تم ربط وتحديث ${imported.length} عميل`, 'الأدمن');
+                statusEl.innerText = `✔ تم استيراد وتحديث ${imported.length} عميل بنجاح`;
+                alert(`تم استيراد ${imported.length} عميل بنجاح!`);
+            } catch (err) {
+                alert('حدث خطأ أثناء قراءة ملف الإكسيل!');
+                statusEl.innerText = '';
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    async function reserveAtomicDailyOrderId(dateKey, peekOnly = false) {
+        if (manualCounterOverride !== null && manualCounterOverride > 0) {
+            const forced = manualCounterOverride;
+            if (!peekOnly) {
+                manualCounterOverride = null;
+                localStorage.removeItem('italiano_v13_counter');
+            }
+            return forced;
+        }
+
+        const cleanDate = dateKey.replace(/\//g, '-');
+        const localMax = getLocalTodayMaxId(dateKey);
+
+        if (CLOUD_DB_URL) {
+            const counterUrl = `${CLOUD_DB_URL}/cash_receipt_counters/${cleanDate}_last_id.json`;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+                const getRes = await fetch(`${counterUrl}?t=${Date.now()}`, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                let cloudCounter = null;
+                if (getRes.ok) {
+                    cloudCounter = await getRes.json();
+                }
+
+                let base = (typeof cloudCounter === 'number' && cloudCounter >= 0) ? cloudCounter : 0;
+                if (localMax > base) base = localMax;
+
+                const nextId = base + 1;
+                if (peekOnly) return nextId;
+
+                fetch(counterUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nextId)
+                }).catch(() => {});
+
+                return nextId;
+            } catch (e) {
+                return localMax + 1;
+            }
+        }
+
+        return localMax + 1;
+    }
+
+    function getLocalTodayMaxId(dateKey) {
+        const todayItems = localOrders.concat(localTrash).filter(o => o.date === dateKey);
+        return todayItems.reduce((max, ord) => {
+            const n = parseInt(ord.id, 10);
+            return (!isNaN(n) && n > max) ? n : max;
+        }, 0);
+    }
+
+    async function startReceiptFlow(clientType) {
+        document.getElementById('clientStatusInput').value = clientType;
+        refreshDeviceDate();
+
+        const today = getTodayFormatted();
+        document.getElementById('orderNumberInput').value = "حجز...";
+        document.getElementById('repNameInput').value = '';
+
+        document.getElementById('welcomeHomeSection').classList.add('hidden');
+        document.getElementById('sheetContainerWrap').classList.remove('hidden');
+        document.getElementById('btnClientGate').classList.remove('hidden');
+        document.getElementById('btnAdminGate').classList.add('hidden');
+
+        const assigned = await reserveAtomicDailyOrderId(today, true);
+        document.getElementById('orderNumberInput').value = assigned;
+
+        setTimeout(() => {
+            const nameInput = document.getElementById('clientNameInput');
+            if (nameInput) nameInput.focus();
+        }, 150);
+    }
+
+    function tafqeetToWords(number) {
+        if (!number || isNaN(number) || number <= 0) return "—";
+
+        const ones = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة",
+                      "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
+        const tens = ["", "", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
+        const hundreds = ["", "مائة", "مائتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة"];
+
+        function parseThreeDigits(n) {
+            let res = [];
+            let h = Math.floor(n / 100);
+            let rem = n % 100;
+            let t = Math.floor(rem / 10);
+            let o = rem % 10;
+
+            if (h > 0) res.push(hundreds[h]);
+            if (rem > 0) {
+                if (rem < 20) {
+                    res.push(ones[rem]);
+                } else {
+                    if (o > 0) res.push(ones[o]);
+                    res.push(tens[t]);
+                }
+            }
+            return res.join(" و ");
+        }
+
+        let n = parseInt(number, 10);
+        let parts = [];
+
+        if (n >= 1000000) {
+            let mil = Math.floor(n / 1000000);
+            n %= 1000000;
+            if (mil === 1) parts.push("مليون");
+            else if (mil === 2) parts.push("مليونان");
+            else if (mil >= 3 && mil <= 10) parts.push(`${parseThreeDigits(mil)} ملايين`);
+            else parts.push(`${parseThreeDigits(mil)} مليون`);
+        }
+
+        if (n >= 1000) {
+            let th = Math.floor(n / 1000);
+            n %= 1000;
+            if (th === 1) parts.push("ألف");
+            else if (th === 2) parts.push("ألفان");
+            else if (th >= 3 && th <= 10) parts.push(`${parseThreeDigits(th)} آلاف`);
+            else parts.push(`${parseThreeDigits(th)} ألف`);
+        }
+
+        if (n > 0) parts.push(parseThreeDigits(n));
+        return parts.join(" و ") + " جنيهاً مصرياً فقط لا غير";
+    }
+
+    function updateAutoTafqeet(v) {
+        document.getElementById('tafqeetInput').value = tafqeetToWords(v);
+    }
+
+    async function submitReceiptOrder() {
+        const btn = document.getElementById('btnSubmitDispatch');
+        const clientName = document.getElementById('clientNameInput').value.trim();
+        const clientPhone = document.getElementById('clientPhoneInput').value.trim();
+        const repName = document.getElementById('repNameInput').value.trim();
+        const amount = document.getElementById('receiptAmountInput').value.trim();
+        const areaVal = getEnteredAreaValue();
+
+        if (!clientName || !clientPhone || !amount || !repName) {
+            alert('⚠️ يرجى كتابة اسم العميل، رقم الهاتف، اسم المندوب، والمبلغ.');
+            return;
+        }
+
+        if (!clientPhone.startsWith('01') || clientPhone.length !== 11) {
+            alert('⚠️ خطأ في رقم الهاتف!\nيجب أن يبدأ الرقم بـ 01 ويتكون من 11 رقماً بالضبط.');
+            document.getElementById('clientPhoneInput').focus();
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "جاري الإرسال والتأمين السحابي...";
+
+        try {
+            const today = getTodayFormatted();
+            let targetId = await reserveAtomicDailyOrderId(today, false);
+            document.getElementById('orderNumberInput').value = targetId;
+
+            const now = new Date();
+            const timeFormatted = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            const record = {
+                id: targetId.toString(),
+                date: today,
+                clientName: clientName,
+                clientPhone: clientPhone,
+                area: areaVal || '—',
+                rep: repName,
+                clientStatus: document.getElementById('clientStatusInput').value,
+                amount: amount,
+                tafqeet: document.getElementById('tafqeetInput').value,
+                payMethod: document.getElementById('paymentMethodSelect').value,
+                reason: document.getElementById('receiptReasonInput').value,
+                status: 'pending',
+                createdAt: now.toLocaleString('en-US'),
+                time: timeFormatted,
+                uniqueKey: `${today.replace(/\//g,'-')}_${targetId}`
+            };
+
+            // حفظ محلي في الهاتف
+            localOrders.push(record);
+            localStorage.setItem('italiano_v13_orders', JSON.stringify(localOrders));
+
+            // رفع سحابي مباشر على Firebase مع فحص النتيجة
+            if (CLOUD_DB_URL) {
+                try {
+                    const cloudRes = await fetch(`${CLOUD_DB_URL}/cash_receipts/${record.uniqueKey}.json`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(record)
+                    });
+                    if (!cloudRes.ok) {
+                        console.error('Firebase Cloud Error Status:', cloudRes.status);
+                    }
+                } catch(netErr) {
+                    console.error('Network Error while pushing to Firebase:', netErr);
+                }
+            }
+
+            addAuditRecord(record.id, 'إنشاء إيصال', `المبلغ ${formatEnglishNumber(amount)} EGP العميل ${clientName}`, 'العميل');
+
+            document.getElementById('instaMoneyDisplay').innerText = `EGP ${formatEnglishNumber(amount, 2)}`;
+            document.getElementById('instaRecNum').innerText = '#' + record.id;
+            document.getElementById('instaClientName').innerText = record.clientName;
+            document.getElementById('instaPhoneVal').innerText = record.clientPhone;
+            document.getElementById('instaAreaVal').innerText = record.area;
+            document.getElementById('instaRepVal').innerText = record.rep;
+            document.getElementById('instaPaymentType').innerText = record.payMethod;
+            document.getElementById('instaDateStamp').innerText = `${record.time} - ${record.date}`;
+
+            const badge = document.getElementById('instaOrderStatusBadge');
+            badge.innerText = "قيد مراجعة واعتماد الإدارة";
+            badge.style.color = "#b45309";
+            document.getElementById('instaCheckIcon').classList.remove('approved-state');
+            document.getElementById('instaMainHeaderTitle').innerText = "تم إرسال الإيصال بنجاح";
+            document.getElementById('instaProofBadge').style.display = 'none';
+            document.getElementById('btnClientDownloadPdf').style.display = 'none';
+
+            document.getElementById('sheetContainerWrap').classList.add('hidden');
+            document.getElementById('instaSuccessModal').style.display = 'flex';
+
+            document.getElementById('clientNameInput').value = '';
+            document.getElementById('clientPhoneInput').value = '';
+            setEnteredAreaValue('');
+            document.getElementById('repNameInput').value = '';
+            document.getElementById('receiptAmountInput').value = '';
+            document.getElementById('tafqeetInput').value = '—';
+
+            currentWaitingReceiptKey = record.uniqueKey;
+            startLiveApprovalListener(record);
+        } catch (err) {
+            console.error(err);
+            alert('حدث خطأ أثناء معالجة الإيصال، يرجى المحاولة مرة أخرى.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "إرسال الإيصال للاعتماد 🚀";
+        }
+    }
+
+    function startLiveApprovalListener(waitingRecord) {
+        if (clientStatusPollingTimer) clearInterval(clientStatusPollingTimer);
+
+        clientStatusPollingTimer = setInterval(async () => {
+            if (CLOUD_DB_URL) {
+                try {
+                    const res = await fetch(`${CLOUD_DB_URL}/cash_receipts/${waitingRecord.uniqueKey}.json?t=${Date.now()}`);
+                    if (res.ok) {
+                        const cloudOrd = await res.json();
+                        if (cloudOrd && cloudOrd.status === 'approved') {
+                            triggerClientApprovalSuccess(cloudOrd);
+                            return;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            const latestOrders = JSON.parse(localStorage.getItem('italiano_v13_orders')) || localOrders;
+            const matched = latestOrders.find(o => o.uniqueKey === waitingRecord.uniqueKey);
+            if (matched && matched.status === 'approved') {
+                triggerClientApprovalSuccess(matched);
+            }
+        }, 1200);
+    }
+
+    function triggerClientApprovalSuccess(approvedOrd) {
+        if (clientStatusPollingTimer) clearInterval(clientStatusPollingTimer);
+
+        playInstaApprovalSound();
+
+        const badge = document.getElementById('instaOrderStatusBadge');
+        badge.innerText = "تم تأكيد واعتماد السداد بنجاح من إدارة إيطاليانو ✓";
+        badge.style.color = "#15803d";
+
+        document.getElementById('instaCheckIcon').classList.add('approved-state');
+        document.getElementById('instaMainHeaderTitle').innerText = "تم تأكيد استلام النقدية بنجاح ✓";
+        document.getElementById('instaProofBadge').style.display = 'block';
+        document.getElementById('btnClientDownloadPdf').style.display = 'block';
+
+        activeInspectedOrder = approvedOrd;
+    }
+
+    function downloadCurrentClientReceiptPdf() {
+        if (!activeInspectedOrder) return;
+        const renderZone = document.getElementById('receiptViewerRenderZone');
+        renderZone.innerHTML = `
+            <div id="printTargetCard" style="width:142mm; height:204mm; box-sizing:border-box; background:#fff; padding:1mm; display:flex; flex-direction:column; justify-content:space-between; margin:0 auto;">
+                ${buildReceiptHtmlTemplate(activeInspectedOrder, 'أصل حسابات الشركة')}
+                
+                <div style="text-align:center; font-size:6.5pt; color:#777; border-top:1.5px dashed #666; margin:1mm 0; position:relative;">
+                    <span style="background:#fff; padding:0 6px; position:relative; top:-6px; font-weight:bold;">✂ خط القص ✂</span>
+                </div>
+                
+                ${buildReceiptHtmlTemplate(activeInspectedOrder, 'صورة العميل (إثبات سداد)')}
+            </div>
+        `;
+        printRenderedZonePDF();
+    }
+
+    function closeInstaSuccess() {
+        if (clientStatusPollingTimer) clearInterval(clientStatusPollingTimer);
+        document.getElementById('instaSuccessModal').style.display = 'none';
+        openClientHome();
+    }
+
+    function addAuditRecord(orderId, action, details, by) {
+        localAudit.unshift({
+            orderId: orderId,
+            action: action,
+            details: details,
+            by: by,
+            timestamp: new Date().toLocaleString('en-US')
+        });
+        localStorage.setItem('italiano_v13_audit', JSON.stringify(localAudit));
+    }
+
+    function clearAuditLogRecords() {
+        if (!confirm('هل تريد مسح سجل العمليات بالكامل؟')) return;
+        localAudit = [];
+        localStorage.setItem('italiano_v13_audit', JSON.stringify(localAudit));
+        openAuditLogScreen();
+    }
+
+    function openPendingScreen() {
+        const container = document.getElementById('pendingListSurface');
+        container.innerHTML = '';
+        const pending = localOrders.filter(o => o.status === 'pending');
+
+        if (pending.length === 0) {
+            container.innerHTML = '<p style="color:#64748b; text-align:center; padding:30px;">لا توجد أي إيصالات معلقة حالياً</p>';
+        } else {
+            pending.forEach(o => {
+                container.innerHTML += `
+                    <div class="list-row-item">
+                        <div>
+                            <div style="font-weight:900; color:#1a2a6c; font-size:14px;">#${o.id} - ${o.clientName}</div>
+                            <div style="font-size:12.5px; color:#475569;">المبلغ: <strong>${formatEnglishNumber(o.amount)} EGP</strong> | ${o.payMethod}</div>
+                            <div style="font-size:11.5px; color:#64748b;">الهاتف: ${o.clientPhone} | المحافظة: ${o.area} | المندوب: ${o.rep} | ${o.date}</div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-action-pill btn-approve" onclick="approveOrderAction('${o.id}', '${o.date}')">✅ موافقة</button>
+                            <button class="btn-action-pill btn-view" onclick="openReceiptViewer('${o.id}', '${o.date}')">👁️ عرض</button>
+                            <button class="btn-action-pill btn-delete" onclick="moveOrderToTrash('${o.id}', '${o.date}')">🗑️ حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        showModal('pendingModal');
+    }
+
+    async function approveOrderAction(id, date) {
+        const item = localOrders.find(o => o.id === id && o.date === date);
+        if (item) {
+            item.status = 'approved';
+            item.approvedAt = new Date().toLocaleString('en-US');
+            localStorage.setItem('italiano_v13_orders', JSON.stringify(localOrders));
+
+            if (CLOUD_DB_URL && item.uniqueKey) {
+                try {
+                    await fetch(`${CLOUD_DB_URL}/cash_receipts/${item.uniqueKey}/status.json`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify('approved')
+                    });
+                } catch(e) {}
+            }
+
+            addAuditRecord(id, 'موافقة واعتماد', `تم اعتماد الإيصال بمبلغ ${formatEnglishNumber(item.amount)} EGP`, 'الأدمن');
+            alert(`تم اعتماد الإيصال رقم #${id} بنجاح!\nسيظهر فوراً للعميل إشعار إثبات السداد.`);
+            openPendingScreen();
+        }
+    }
+
+    function moveOrderToTrash(id, date) {
+        if (!confirm(`هل أنت متأكد من نقل الإيصال رقم #${id} إلى سلة المحذوفات؟`)) return;
+        const idx = localOrders.findIndex(o => o.id === id && o.date === date);
+        if (idx > -1) {
+            const del = localOrders.splice(idx, 1)[0];
+            del.deletedAt = new Date().toLocaleString('en-US');
+            localTrash.unshift(del);
+            localStorage.setItem('italiano_v13_orders', JSON.stringify(localOrders));
+            localStorage.setItem('italiano_v13_trash', JSON.stringify(localTrash));
+            addAuditRecord(id, 'نقل للسلة', 'تم حذف الإيصال ونقله لسلة المحذوفات', 'الأدمن');
+
+            if (CLOUD_DB_URL && del.uniqueKey) {
+                fetch(`${CLOUD_DB_URL}/cash_receipts/${del.uniqueKey}.json`, { method: 'DELETE' }).catch(()=>{});
+            }
+
+            if (del.status === 'approved') {
+                renderApprovedList();
+            } else {
+                openPendingScreen();
+            }
+        }
+    }
+
+    function openApprovedScreen() {
+        renderApprovedList();
+        showModal('approvedModal');
+    }
+
+    function renderApprovedList() {
+        const q = (document.getElementById('approvedSearchInput').value || '').trim().toLowerCase();
+        const container = document.getElementById('approvedListSurface');
+        container.innerHTML = '';
+
+        let approved = localOrders.filter(o => o.status === 'approved');
+        if (q) {
+            approved = approved.filter(o => 
+                o.id.toLowerCase().includes(q) ||
+                o.clientName.toLowerCase().includes(q) ||
+                o.clientPhone.toLowerCase().includes(q) ||
+                (o.area && o.area.toLowerCase().includes(q)) ||
+                (o.rep && o.rep.toLowerCase().includes(q))
+            );
+        }
+
+        if (approved.length === 0) {
+            container.innerHTML = '<p style="color:#64748b; text-align:center; padding:30px;">لا توجد نتائج مطابقة في المعتمد</p>';
+        } else {
+            approved.forEach(o => {
+                container.innerHTML += `
+                    <div class="list-row-item" style="border-right: 4px solid var(--success);">
+                        <div>
+                            <div style="font-weight:900; color:#1a2a6c; font-size:14px;">#${o.id} - ${o.clientName}</div>
+                            <div style="font-size:12.5px; color:#475569;">المبلغ: <strong>${formatEnglishNumber(o.amount)} EGP</strong> | ${o.payMethod} | ${o.date}</div>
+                            <div style="font-size:11.5px; color:#64748b;">الهاتف: ${o.clientPhone} | المحافظة: ${o.area} | المندوب: ${o.rep}</div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-action-pill btn-view" onclick="openReceiptViewer('${o.id}', '${o.date}')">👁️ عرض وتنزيل</button>
+                            <button class="btn-action-pill btn-delete" onclick="moveOrderToTrash('${o.id}', '${o.date}')">🗑️ حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function setDateFilterPreset(type) {
+        const fromInput = document.getElementById('repDateFrom');
+        const toInput = document.getElementById('repDateTo');
+        const now = new Date();
+        const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+        if (type === 'today') {
+            fromInput.value = toISO(now);
+            toInput.value = toISO(now);
+        } else if (type === 'yesterday') {
+            const y = new Date(); y.setDate(now.getDate() - 1);
+            fromInput.value = toISO(y);
+            toInput.value = toISO(y);
+        } else if (type === 'week') {
+            const past = new Date(); past.setDate(now.getDate() - 7);
+            fromInput.value = toISO(past);
+            toInput.value = toISO(now);
+        } else if (type === 'month') {
+            const first = new Date(now.getFullYear(), now.getMonth(), 1);
+            fromInput.value = toISO(first);
+            toInput.value = toISO(now);
+        } else {
+            fromInput.value = '';
+            toInput.value = '';
+        }
+        generateReportData();
+    }
+
+    function parseDateString(dStr) {
+        if (!dStr) return null;
+        if (dStr.includes('/')) {
+            const p = dStr.split('/');
+            return new Date(p[2], p[1] - 1, p[0]);
+        }
+        if (dStr.includes('-')) {
+            const p = dStr.split('-');
+            return new Date(p[0], p[1] - 1, p[2]);
+        }
+        return null;
+    }
+
+    function generateReportData() {
+        let list = localOrders.filter(o => o.status === 'approved');
+
+        const dFrom = parseDateString(document.getElementById('repDateFrom').value);
+        const dTo = parseDateString(document.getElementById('repDateTo').value);
+        const payMethod = document.getElementById('repPayFilter').value;
+        const statusVal = document.getElementById('repStatusFilter').value;
+
+        if (dFrom || dTo) {
+            list = list.filter(o => {
+                const od = parseDateString(o.date);
+                if (!od) return true;
+                if (dFrom && od < dFrom) return false;
+                if (dTo && od > dTo) return false;
+                return true;
+            });
+        }
+
+        if (payMethod) list = list.filter(o => o.payMethod === payMethod);
+        if (statusVal) list = list.filter(o => o.clientStatus === statusVal);
+
+        let totalRev = 0;
+        let payStats = {};
+
+        list.forEach(o => {
+            const amt = parseFloat(o.amount) || 0;
+            totalRev += amt;
+            payStats[o.payMethod] = (payStats[o.payMethod] || 0) + amt;
+        });
+
+        document.getElementById('kpiTotalRevenue').innerText = `${formatEnglishNumber(totalRev, 2)} EGP`;
+        document.getElementById('kpiTotalCount').innerText = formatEnglishNumber(list.length, 0);
+        const avg = list.length ? (totalRev / list.length) : 0;
+        document.getElementById('kpiAvgAmount').innerText = `${formatEnglishNumber(avg, 2)} EGP`;
+
+        let payHtml = '';
+        for (let m in payStats) {
+            const pct = totalRev > 0 ? Math.round((payStats[m] / totalRev) * 100) : 0;
+            payHtml += `
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px; margin-bottom:6px;">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:12px;">
+                        <span>💳 ${m}</span>
+                        <span style="color:#1a2a6c; direction:ltr;">${formatEnglishNumber(payStats[m], 2)} EGP (${pct}%)</span>
+                    </div>
+                    <div style="background:#e2e8f0; height:6px; border-radius:3px; margin-top:4px; overflow:hidden;">
+                        <div style="background:#1a2a6c; height:100%; width:${pct}%;"></div>
+                    </div>
+                </div>
+            `;
+        }
+        document.getElementById('paymentStatsReportContainer').innerHTML = payHtml || '<p style="color:#888; font-size:12px;">لا توجد بيانات للفترة المحددة</p>';
+
+        let ordersHtml = '';
+        list.forEach(o => {
+            ordersHtml += `
+                <div class="list-row-item" style="padding:8px 12px; font-size:12px;">
+                    <div>
+                        <strong>#${o.id} - ${o.clientName}</strong> (${o.clientPhone})
+                        <div style="color:#64748b; font-size:11px;">${o.date} | ${o.payMethod} | المحافظة: ${o.area} | المندوب: ${o.rep}</div>
+                    </div>
+                    <strong style="color:var(--success); font-size:13.5px; direction:ltr;">${formatEnglishNumber(o.amount, 2)} EGP</strong>
+                </div>
+            `;
+        });
+        document.getElementById('reportOrdersListContainer').innerHTML = ordersHtml || '<p style="color:#888; font-size:12px;">لا توجد إيصالات مطابقة</p>';
+    }
+
+    function openReportsScreen() {
+        setDateFilterPreset('today');
+        showModal('reportsModal');
+    }
+
+    function buildReceiptHtmlTemplate(ord, tagText) {
+        return `
+            <div style="background:#fff; border:1.5px solid #000; padding:4px 6px; font-family:'Segoe UI', Tahoma, sans-serif; direction:rtl; width:100%; box-sizing:border-box; height:99mm; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #000; padding-bottom:2px; margin-bottom:2px;">
+                        <div style="background:#111; color:#fff; padding:2px 5px; border-radius:2px; font-size:7pt; font-weight:bold; text-align:center; line-height:1.2;">
+                            ★ إيطاليانو ★<br><span style="font-size:5.5pt;">للملابس الجاهزة</span>
+                        </div>
+                        <div style="text-align:center; flex:1;">
+                            <h2 style="font-size:11.5pt; margin:0; font-weight:bold; color:#000;">إيطاليانو للملابس الجاهزة</h2>
+                            <h3 style="font-size:9.5pt; margin:1px 0 0; text-decoration:underline; font-weight:bold; color:#000;">إيصال استلام نقدية ${tagText}</h3>
+                        </div>
+                    </div>
+
+                    <table style="width:100%; border-collapse:collapse; font-size:8pt; line-height:1.25;">
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">رقم الإيصال</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; background:#ffff00; font-weight:900; color:#a30000; font-size:9.5pt;">${ord.id}</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">التاريخ</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.date}</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">اسم العميل</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.clientName}</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">رقم الهاتف</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.clientPhone}</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">المحافظة</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.area || '—'}</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">المندوب</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.rep}</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">حالة العميل</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.clientStatus}</td>
+                        </tr>
+                        <tr style="height:5.8mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">المبلغ</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:900; font-size:9pt;">${formatEnglishNumber(ord.amount, 0)} ج.م</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">فقط وقدره</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.tafqeet}</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">طريقة الدفع</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.payMethod}</td>
+                        </tr>
+                        <tr style="height:5.5mm;">
+                            <td style="border:1.2px solid #000; padding:1px 4px; width:33%; font-weight:bold;">وذلك مقابل</td>
+                            <td style="border:1.2px solid #000; padding:1px 4px; text-align:center; font-weight:bold;">${ord.reason}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div>
+                    <div style="font-size:7.5pt; font-weight:bold; margin-top:2px;">الختم</div>
+                    <div style="border:1.2px solid #000; height:20mm; display:flex; align-items:center; justify-content:center; font-size:7.5pt; color:#666; background:#fafafa;">
+                        مساحة الختم والاعتماد الرسمي
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function openReceiptViewer(id, date) {
+        const ord = localOrders.find(o => o.id === id && o.date === date) || localTrash.find(o => o.id === id && o.date === date);
+        if (!ord) return;
+
+        activeInspectedOrder = ord;
+        const renderZone = document.getElementById('receiptViewerRenderZone');
+
+        renderZone.innerHTML = `
+            <div id="printTargetCard" style="width:142mm; height:204mm; box-sizing:border-box; background:#fff; padding:1mm; display:flex; flex-direction:column; justify-content:space-between; margin:0 auto;">
+                ${buildReceiptHtmlTemplate(ord, 'أصل حسابات الشركة')}
+                
+                <div style="text-align:center; font-size:6.5pt; color:#777; border-top:1.5px dashed #666; margin:1mm 0; position:relative;">
+                    <span style="background:#fff; padding:0 6px; position:relative; top:-6px; font-weight:bold;">✂ خط القص ✂</span>
+                </div>
+                
+                ${buildReceiptHtmlTemplate(ord, 'صورة العميل (إثبات سداد)')}
+            </div>
+        `;
+
+        showModal('receiptViewerModal');
+    }
+
+    function printRenderedZonePDF() {
+        if (!activeInspectedOrder) return;
+        const ord = activeInspectedOrder;
+        const target = document.getElementById('printTargetCard');
+
+        const cleanClient = (ord.clientName || 'عميل').replace(/[\/\?%*:|"<>]/g, '_');
+        const fileName = `ايصال_رقم_${ord.id}_${cleanClient}_${ord.clientPhone}.pdf`;
+
+        const opt = {
+            margin: [1, 1, 1, 1],
+            filename: fileName,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2.2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(target).save();
+    }
+
+    function openAuditLogScreen() {
+        const searchBox = document.getElementById('auditSearchInput');
+        if (searchBox) searchBox.value = '';
+        renderAuditLogList();
+        showModal('auditLogModal');
+    }
+
+    function renderAuditLogList() {
+        const searchBox = document.getElementById('auditSearchInput');
+        const q = (searchBox && searchBox.value || '').trim().toLowerCase();
+        const container = document.getElementById('auditLogSurface');
+        container.innerHTML = '';
+
+        let list = localAudit;
+        if (q) {
+            list = list.filter(l =>
+                String(l.orderId || '').toLowerCase().includes(q) ||
+                String(l.action || '').toLowerCase().includes(q) ||
+                String(l.details || '').toLowerCase().includes(q) ||
+                String(l.by || '').toLowerCase().includes(q) ||
+                String(l.timestamp || '').toLowerCase().includes(q)
+            );
+        }
+
+        if (list.length === 0) {
+            container.innerHTML = q
+                ? '<p style="color:#64748b; text-align:center; padding:30px;">لا توجد نتائج مطابقة في السجل</p>'
+                : '<p style="color:#64748b; text-align:center; padding:30px;">سجل العمليات فارغ</p>';
+        } else {
+            list.forEach(l => {
+                container.innerHTML += `
+                    <div style="border-bottom:1px solid #e2e8f0; padding:10px 0; font-size:12px;">
+                        <div style="display:flex; justify-content:space-between;">
+                            <strong style="color:#1a2a6c;">إيصال #${l.orderId} - ${l.action}</strong>
+                            <span style="color:#64748b; font-size:11px;">${l.timestamp}</span>
+                        </div>
+                        <div style="color:#334155; margin-top:3px;">${l.details}</div>
+                        <div style="color:#94a3b8; font-size:10.5px;">بواسطة: ${l.by}</div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function openTrashScreen() {
+        const container = document.getElementById('trashListSurface');
+        container.innerHTML = '';
+        if (localTrash.length === 0) {
+            container.innerHTML = '<p style="color:#64748b; text-align:center; padding:30px;">سلة المحذوفات فارغة</p>';
+        } else {
+            localTrash.forEach(o => {
+                container.innerHTML += `
+                    <div class="list-row-item">
+                        <div>
+                            <strong style="color:#be123c;">#${o.id} - ${o.clientName} (${formatEnglishNumber(o.amount)} EGP)</strong>
+                            <div style="font-size:11.5px; color:#64748b;">الهاتف: ${o.clientPhone} | المحافظة: ${o.area} | حُذف في: ${o.deletedAt}</div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-action-pill btn-restore" onclick="restoreOrderFromTrash('${o.id}', '${o.date}')">♻️ استعادة</button>
+                            <button class="btn-action-pill btn-delete" onclick="permanentPurgeOrder('${o.id}', '${o.date}')">🔥 مسح</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        showModal('trashModal');
+    }
+
+    function restoreOrderFromTrash(id, date) {
+        const idx = localTrash.findIndex(o => o.id === id && o.date === date);
+        if (idx > -1) {
+            const restored = localTrash.splice(idx, 1)[0];
+            localOrders.push(restored);
+            localStorage.setItem('italiano_v13_orders', JSON.stringify(localOrders));
+            localStorage.setItem('italiano_v13_trash', JSON.stringify(localTrash));
+            addAuditRecord(id, 'استعادة من السلة', 'تمت استعادة الإيصال للأرشيف', 'الأدمن');
+
+            if (CLOUD_DB_URL && restored.uniqueKey) {
+                fetch(`${CLOUD_DB_URL}/cash_receipts/${restored.uniqueKey}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(restored)
+                }).catch(()=>{});
+            }
+
+            openTrashScreen();
+        }
+    }
+
+    function permanentPurgeOrder(id, date) {
+        if (!confirm(`تحذير نهائي: هل أنت متأكد من مسح الإيصال #${id} بشكل نهائي؟`)) return;
+        const target = localTrash.find(o => o.id === id && o.date === date);
+        localTrash = localTrash.filter(o => !(o.id === id && o.date === date));
+        localStorage.setItem('italiano_v13_trash', JSON.stringify(localTrash));
+        addAuditRecord(id, 'مسح نهائي', 'تم مسح الإيصال نهائياً من النظام', 'الأدمن');
+
+        if (CLOUD_DB_URL && target && target.uniqueKey) {
+            fetch(`${CLOUD_DB_URL}/cash_receipts/${target.uniqueKey}.json`, { method: 'DELETE' }).catch(()=>{});
+        }
+        openTrashScreen();
+    }
+
+    function emptyEntireTrashBin() {
+        if (localTrash.length === 0) return alert('السلة فارغة بالفعل');
+        if (!confirm('هل أنت متأكد من تفريغ كل محتويات السلة نهائياً؟')) return;
+        localTrash = [];
+        localStorage.setItem('italiano_v13_trash', JSON.stringify(localTrash));
+        addAuditRecord('الكل', 'تفريغ السلة', 'تم تفريغ سلة المحذوفات بالكامل', 'الأدمن');
+        openTrashScreen();
+    }
+
+    function openResetCounterModal() {
+        document.getElementById('customNextIdInput').value = getLocalTodayMaxId(getTodayFormatted()) + 1;
+        showModal('counterManagerModal');
+    }
+
+    function applyCustomCounterId() {
+        const val = parseInt(document.getElementById('customNextIdInput').value, 10);
+        if (isNaN(val) || val <= 0) return alert('يرجى كتابة رقم صحيح أكبر من صفر');
+        manualCounterOverride = val;
+        localStorage.setItem('italiano_v13_counter', val);
+        alert(`تم تعيين رقم الإيصال القادم ليكون #${val}`);
+        hideModal('counterManagerModal');
+    }
+
+    function resetCounterToOne() {
+        manualCounterOverride = 1;
+        localStorage.setItem('italiano_v13_counter', 1);
+        alert('تم تصفير العداد سيبدأ الإيصال القادم من رقم #1');
+        hideModal('counterManagerModal');
+    }
+
+    function exportMasterExcel() {
+        const approved = localOrders.filter(o => o.status === 'approved');
+        if (approved.length === 0) return alert('لا توجد إيصالات معتمدة لتصديرها');
+
+        const wb = XLSX.utils.book_new();
+
+        const ordersData = [
+            ["شركة إيطاليانو للملابس الجاهزة - أرشيف إيصالات النقدية المعتمدة"],
+            ["تاريخ استخراج التقرير:", new Date().toLocaleString('en-US')],
+            [],
+            ["رقم الإيصال", "التاريخ", "اسم العميل", "رقم الهاتف", "المحافظة", "المندوب", "حالة العميل", "المبلغ EGP", "فقط وقدره", "طريقة الدفع", "البيان مقابل", "تاريخ الاعتماد"]
+        ];
+
+        approved.forEach(o => {
+            ordersData.push([
+                o.id,
+                o.date,
+                o.clientName,
+                o.clientPhone,
+                o.area,
+                o.rep,
+                o.clientStatus,
+                parseFloat(o.amount) || 0,
+                o.tafqeet,
+                o.payMethod,
+                o.reason,
+                o.approvedAt || o.date
+            ]);
+        });
+
+        const wsOrders = XLSX.utils.aoa_to_sheet(ordersData);
+        XLSX.utils.book_append_sheet(wb, wsOrders, "الإيصالات المعتمدة");
+
+        const logData = [
+            ["سجل العمليات والرقابة Audit Trail"],
+            [],
+            ["رقم الإيصال", "الإجراء", "التفاصيل", "بواسطة", "التاريخ والوقت"]
+        ];
+        localAudit.forEach(l => {
+            logData.push([l.orderId, l.action, l.details, l.by, l.timestamp]);
+        });
+        const wsLog = XLSX.utils.aoa_to_sheet(logData);
+        XLSX.utils.book_append_sheet(wb, wsLog, "سجل العمليات");
+
+        XLSX.writeFile(wb, `ايصالات_وتقارير_ايطاليانو_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+</body>
+</html>
